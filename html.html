@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Animasyonlu Mektup</title>
+<style>
+  /* Reset & base */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    background: linear-gradient(135deg, #ffd1dc, #ffe6f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Container for letter and note */
+  #container {
+    position: relative;
+    width: 320px;
+    height: 220px;
+    perspective: 600px;
+  }
+
+  /* Letter style */
+  #letter {
+    width: 320px;
+    height: 220px;
+    background: #fff3f6;
+    border-radius: 16px;
+    box-shadow: 0 12px 25px rgba(255, 105, 180, 0.3);
+    position: relative;
+    cursor: grab;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #ff4d87;
+    transform-style: preserve-3d;
+    transition: transform 1.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Envelope flap shaped with CSS */
+  #letter::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 320px;
+    height: 120px;
+    background: #ff4d87;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-radius: 16px 16px 0 0;
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    transition: transform 1.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Note inside letter */
+  #note {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 270px;
+    padding: 20px 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(255, 105, 180, 0.25);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+    font-size: 16px;
+    line-height: 1.5;
+    color: #444;
+    pointer-events: none;
+    transition: opacity 1s ease, transform 1s ease;
+    text-align: justify;
+  }
+
+  /* Show note - visible and scale up */
+  #note.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  /* Animate letter opening */
+  #letter.opening {
+    transform: rotateX(65deg);
+  }
+  #letter.opening::before {
+    transform: rotateX(-140deg);
+  }
+
+  /* Hearts container */
+  #hearts {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  /* Heart shape */
+  .heart {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: pink;
+  transform: rotate(-45deg);
+  animation: floatUp 5s ease-in forwards;
+  opacity: 0.8;
+}
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: pink;
+  border-radius: 50%;
+}
+  
+.heart::before {
+  top: -25px;
+  left: 0;
+}
+.heart::after {
+  left: 25px;
+  top: 0;
+}
+  .heart {
+    transform: rotate(-45deg);
+    border-radius: 10px 10px 0 0;
+  }
+
+  /* Animate hearts floating upwards and fading out */
+  @keyframes floatUp {
+  to {
+    transform: translateY(-100vh) rotate(-45deg);
+    opacity: 30;
+  }
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <div id="letter" aria-label="Mektup zarfı">
+    &#9993;
+  </div>
+  <div id="note" role="note" aria-live="polite">
+    Hayatımın her anında yanımda olduğun, sevgini hiç esirgemediğin için sana minnettarım.
+    Senin sevgin en güvenli limanım, en güçlü ilacım.
+    Anneler Günün kutlu olsun, iyi ki varsın. 💖
+    Furkan
+    Sueda 
+    Betül
+    ChatGpt
+  </div>
+</div>
+
+<div id="hearts" aria-hidden="true"></div>
+
+<script>
+  const letter = document.getElementById('letter');
+  const note = document.getElementById('note');
+  const heartsContainer = document.getElementById('hearts');
+
+  // After initial delay, animate letter opening and show note
+  function openLetter() {
+    letter.classList.add('opening');
+    setTimeout(() => {
+      note.classList.add('visible');
+    }, 1500);
+  }
+
+  // Create a heart element with randomized animation timings and position
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.bottom = '-20px';
+    const duration = 4000 + Math.random() * 3000;
+    heart.style.animation = `floatUp ${duration}ms forwards`;
+    heart.style.opacity = Math.random() * 0.8 + 0.2;
+    heart.style.fontSize = (10 + Math.random() * 20) + 'px';
+
+    heartsContainer.appendChild(heart);
+
+    // Remove heart after animation
+    setTimeout(() => {
+      heartsContainer.removeChild(heart);
+    }, duration);
+  }
+
+  // Generate hearts continuously at intervals
+  setInterval(() => {
+    createHeart();
+  }, 500);
+
+  // Open letter after 1 second
+  setTimeout(() => {
+    openLetter();
+  }, 1000);
+
+  // For mobile-friendly and accessible: prevent scroll and pinch zoom
+  document.addEventListener('touchmove', e => {
+    if (e.scale !== 1) e.preventDefault();
+  }, { passive: false });
+</script>
+
+</body>
+</html>
+
